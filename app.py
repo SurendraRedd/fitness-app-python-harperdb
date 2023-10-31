@@ -25,28 +25,26 @@ menu_options = ("Today's workout", "All workouts", "Add workout")
 selection = st.sidebar.selectbox("Menu", menu_options)
 
 if selection == "All workouts":
-    st.markdown(f"## All workouts")
-    
+    st.markdown("## All workouts")
+
     workouts = get_workouts()
     for wo in workouts:
         url = "https://youtu.be/" + wo["video_id"]
         st.text(wo['title'])
         st.text(f"{wo['channel']} - {get_duration_text(wo['duration'])}")
-        
-        ok = st.button('Delete workout', key=wo["video_id"])
-        if ok:
+
+        if ok := st.button('Delete workout', key=wo["video_id"]):
             dbs.delete_workout(wo["video_id"])
             st.legacy_caching.clear_cache()
             st.experimental_rerun()
-            
+
         st.video(url)
     else:
         st.text("No workouts in Database!")
 elif selection == "Add workout":
-    st.markdown(f"## Add workout")
-    
-    url = st.text_input('Please enter the video url')
-    if url:
+    st.markdown("## Add workout")
+
+    if url := st.text_input('Please enter the video url'):
         workout_data = get_info(url)
         if workout_data is None:
             st.text("Could not find video")
@@ -59,14 +57,11 @@ elif selection == "Add workout":
                 st.text("Added workout!")
                 st.legacy_caching.clear_cache()
 else:
-    st.markdown(f"## Today's workout")
-    
-    workouts = get_workouts()
-    if not workouts:
-        st.text("No workouts in Database!")
-    else:
+    st.markdown("## Today's workout")
+
+    if workouts := get_workouts():
         wo = dbs.get_workout_today()
-        
+
         if not wo:
             # not yet defined
             workouts = get_workouts()
@@ -77,7 +72,7 @@ else:
         else:
             # first item in list
             wo = wo[0]
-        
+
         if st.button("Choose another workout"):
             workouts = get_workouts()
             n = len(workouts)
@@ -89,9 +84,11 @@ else:
                     wo_new = workouts[idx]
                 wo = wo_new
                 dbs.update_workout_today(wo)
-        
+
         url = "https://youtu.be/" + wo["video_id"]
         st.text(wo['title'])
         st.text(f"{wo['channel']} - {get_duration_text(wo['duration'])}")
         st.video(url)
+    else:
+        st.text("No workouts in Database!")
     

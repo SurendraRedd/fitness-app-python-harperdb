@@ -13,18 +13,12 @@ def get_info(url):
             )
         except DownloadError:
             return None
-        
-    if "entries" in result:
-        video = result["entries"][0]
-    else:
-        video = result
-        
+
+    video = result["entries"][0] if "entries" in result else result
     infos = ['id', 'title', 'channel', 'view_count', 'like_count',
              'channel_id', 'duration', 'categories', 'tags']
-    
+
     def key_name(key):
-        if key == "id":
-            return "video_id"
-        return key
-    
+        return "video_id" if key == "id" else key
+
     return {key_name(key): video[key] for key in infos}
